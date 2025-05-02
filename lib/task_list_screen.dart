@@ -8,20 +8,23 @@ class TaskListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Mengakses TaskProvider menggunakan Provider.of
-    // listen: true (default) karena kita perlu membangun ulang UI saat state berubah
-    final taskProvider = Provider.of<TaskProvider>(context);
-    final tasks = taskProvider.tasks; // Mengambil daftar tugas dari state
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Daftar Tugas'),
       ),
-      body: tasks.isEmpty
-          ? const Center(
+      // Menggunakan Consumer untuk mendengarkan perubahan TaskProvider
+      body: Consumer<TaskProvider>(
+        builder: (context, taskProvider, child) {
+          // Builder function menerima context, instance provider (taskProvider),
+          // dan child (opsional, widget yang tidak perlu dibangun ulang)
+          final tasks = taskProvider.tasks; // Mengambil daftar tugas dari state
+
+          if (tasks.isEmpty) {
+            return const Center(
               child: Text('Belum ada tugas.'),
-            )
-          : ListView.builder(
+            );
+          } else {
+            return ListView.builder(
               itemCount: tasks.length,
               itemBuilder: (context, index) {
                 final task = tasks[index];
@@ -30,30 +33,34 @@ class TaskListScreen extends StatelessWidget {
                     task.title,
                     style: TextStyle(
                       decoration: task.isDone
-                          ? TextDecoration.lineThrough // Coret jika selesai
+                          ? TextDecoration.lineThrough
                           : TextDecoration.none,
                     ),
                   ),
                   leading: Checkbox(
                     value: task.isDone,
                     onChanged: (_) {
-                      // Memanggil metode dari TaskProvider
+                      // Memanggil metode dari TaskProvider yang diakses di builder Consumer
                       taskProvider.toggleTaskStatus(task.id);
                     },
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
                     onPressed: () {
-                      // Memanggil metode dari TaskProvider
+                      // Memanggil metode dari TaskProvider yang diakses di builder Consumer
                       taskProvider.removeTask(task.id);
                     },
                   ),
                 );
               },
-            ),
+            );
+          }
+        },
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            _showAddTaskDialog(context), // Tampilkan dialog tambah tugas
+        // Mengakses TaskProvider menggunakan Provider.of dengan listen: false
+        // karena tombol ini hanya perlu memanggil metode, bukan membangun ulang UI-nya sendiri
+        onPressed: () => _showAddTaskDialog(context),
         tooltip: 'Tambah Tugas',
         child: const Icon(Icons.add),
       ),
@@ -68,7 +75,7 @@ class TaskListScreen extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         // Mengakses TaskProvider menggunakan Provider.of dengan listen: false
-        // karena kita hanya perlu memanggil metode addTask, bukan membangun ulang UI dialog
+        // di sini juga hanya perlu memanggil metode, bukan membangun ulang UI dialog
         final taskProvider = Provider.of<TaskProvider>(context, listen: false);
 
         return AlertDialog(
@@ -88,7 +95,7 @@ class TaskListScreen extends StatelessWidget {
             TextButton(
               child: const Text('Tambah'),
               onPressed: () {
-                taskProvider.addTask(_taskController.text); // Panggil addTask
+                taskProvider.addTask(_taskController.text);
                 Navigator.of(context).pop();
               },
             ),
