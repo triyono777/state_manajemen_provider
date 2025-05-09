@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
+import 'package:state_manajemen_provider/login_screen.dart';
 import 'task_list_screen.dart';
 import 'package:get/get.dart';
 
@@ -17,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // TODO: implement initState
     super.initState();
     Future.delayed(Duration(seconds: 3), () {
-      Get.off(() => TaskListScreen()); // Pindah ke halaman utama
+      Get.off(() => LoginScreen()); // Pindah ke halaman utama
     });
   }
 
