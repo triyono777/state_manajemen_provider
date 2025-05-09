@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:state_manajemen_provider/login_screen.dart';
 import 'task_list_screen.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,7 +19,13 @@ class _SplashScreenState extends State<SplashScreen> {
     // TODO: implement initState
     super.initState();
     Future.delayed(Duration(seconds: 3), () {
-      Get.off(() => LoginScreen()); // Pindah ke halaman utama
+      final box = GetStorage();
+      bool isLogin = box.read("isLogin"); // Ambil status login
+      if (isLogin == null) {
+        Get.off(() => LoginScreen()); // Pindah ke halaman login
+      } else {
+        Get.off(() => TaskListScreen()); // Pindah ke halaman utama
+      }
     });
   }
 
